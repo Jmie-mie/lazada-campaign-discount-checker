@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Lazada Campaign Discount Checker</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f6f7f9;
+      color: #1a1a1a;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    h1, h2 {
+      font-size: 20px;
+      margin: 0 0 6px 0;
+      font-weight: 600;
+      background: #dbeafe;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    h2 {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 0;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin: 14px 0 6px 0;
+    }
+    .section-label {
+      display: inline-block;
+      background: #dbeafe;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    input[type="file"], input[type="number"], input[type="text"], select, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      font-family: inherit;
+    }
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    input[type="number"], input[type="text"] { font-weight: 500; }
+    .suffix-wrap { position: relative; }
+    .suffix-wrap input { padding-right: 38px; }
+    .suffix {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      font-weight: 500;
+      pointer-events: none;
+    }
+    button {
+      background: #0f156f;
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    .hint {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .stat {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      border: 1px solid #e5e7eb;
+    }
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      display: block;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .stat.below .stat-value { color: #16a34a; }
+    .stat.equal .stat-value { color: #2563eb; }
+    .stat.above .stat-value { color: #dc2626; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 14px;
+      min-width: 840px;
+    }
+    th, td {
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    th {
+      background: #f3f4f6;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+    th.sortable:hover { background: #e5e7eb; }
+    .sort-indicator {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-left: 4px;
+      display: inline-block;
+      min-width: 10px;
+    }
+    th.sort-asc .sort-indicator { color: #0f156f; }
+    th.sort-desc .sort-indicator { color: #0f156f; }
+    td.product-name {
+      max-width: 220px;
+      white-space: normal;
+      word-break: break-word;
+    }
+    td.num { text-align: right; }
+    th.num { text-align: right; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge.below { background: #dcfce7; color: #166534; }
+    .badge.equal { background: #dbeafe; color: #1e40af; }
+    .badge.above { background: #fee2e2; color: #991b1b; }
+    .scroll-box {
+      max-height: 420px;
+      overflow: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+    .hidden { display: none; }
+    .error { color: #dc2626; font-size: 14px; margin-top: 8px; }
+    .success { color: #16a34a; font-size: 14px; margin-top: 8px; }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .actions button { flex: 1; min-width: 140px; margin-top: 0; }
+    .detected-info {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #166534;
+    }
+    .detected-info strong { color: #14532d; }
+    .detected-info.ba {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1e40af;
+    }
+    .detected-info.ba strong { color: #1e3a8a; }
+    .search-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .search-row > div { flex: 1; min-width: 140px; }
+    .search-row label { margin-top: 0; }
+    .search-hint {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 20px 0 10px 0;
+    }
+    .section-title.dropdown-toggle {
+      margin: 20px 0 0 0;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      color: #1a1a1a;
+      cursor: pointer;
+      user-select: none;
+    }
+    .section-title.dropdown-toggle:hover {
+      background: #f9fafb;
+    }
+    .dropdown-toggle {
+      width: 100%;
+      text-align: left;
+      background: #fff;
+      color: #1a1a1a;
+      border: 1px solid #d1d5db;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      margin-top: 0;
+    }
+    .dropdown-toggle::after {
+      content: '\25BC';
+      font-size: 12px;
+      color: #6b7280;
+      transition: transform 0.2s;
+    }
+    .dropdown-toggle.open::after {
+      transform: rotate(180deg);
+    }
+    .dropdown-content {
+      display: none;
+      padding-top: 12px;
+    }
+    .dropdown-content.open {
+      display: block;
+    }
+    @media (max-width: 480px) {
+      .stats { grid-template-columns: 1fr; }
+      .actions button { width: 100%; }
+      .search-row > div { width: 100%; }
+      table { min-width: 760px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Lazada Campaign Discount Checker</h1>
+      <p class="subtitle">Upload file, enter the seller's agreed discount rate, and see which SKUs meet the target.</p>
+    </div>
+
+    <div class="card">
+      <label for="fileInput" class="section-label">1. Upload campaign file</label>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+      <p class="hint">Accepted: Excel (.xlsx, .xls) or CSV. The file should include Shop Sku, Sales Price, and Campaign Price (Mandatory) columns.</p>
+
+      <h2 class="section-title dropdown-toggle" id="baToggle">Check product performance</h2>
+      <p class="hint">Optional. Upload to show Add to Cart Users, Units Sold, and Revenue by SKU.</p>
+      <div class="dropdown-content" id="baDropdown">
+        <label for="baFileInput">Upload business advisor product performance file</label>
+        <input type="file" id="baFileInput" accept=".xlsx,.xls,.csv">
+        <p class="hint">The discount check works without this file.</p>
+      </div>
+
+      <div id="detectedMsg" class="detected-info hidden"></div>
+      <div id="baDetectedMsg" class="detected-info ba hidden"></div>
+
+      <label for="agreedRate" class="section-label">2. Seller agreed discount rate</label>
+      <div class="suffix-wrap">
+        <input type="number" id="agreedRate" min="0" max="100" step="0.1" placeholder="e.g. 2 or 2.5">
+        <span class="suffix">%</span>
+      </div>
+      <p class="hint">Discount is calculated as (Sales Price &minus; Campaign Price) &divide; Sales Price &times; 100.</p>
+
+      <button id="checkBtn">Check SKUs</button>
+      <div id="errorMsg" class="error hidden"></div>
+    </div>
+
+    <div id="findCard" class="card hidden">
+      <h2 class="section-title dropdown-toggle" id="findToggle">Find SKU</h2>
+      <div class="dropdown-content" id="findDropdown">
+        <div class="search-row">
+          <div>
+            <label for="searchName">Product Name</label>
+            <select id="searchName">
+              <option value="">All product names</option>
+            </select>
+          </div>
+          <div>
+            <label for="searchSku">Lazada SKU</label>
+            <select id="searchSku">
+              <option value="">All SKUs</option>
+            </select>
+          </div>
+        </div>
+        <p class="search-hint">Select a value from each dropdown, then click Find. Leave as 'All' to ignore that filter.</p>
+        <div class="actions">
+          <button id="findBtn" class="secondary">Find</button>
+          <button id="clearBtn" class="secondary">Show all</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="results" class="hidden">
+      <div class="card">
+        <h1>Results</h1>
+        <div class="stats">
+          <div class="stat below">
+            <span class="stat-value" id="countBelow">0</span>
+            <div class="stat-label">Below agreed rate</div>
+          </div>
+          <div class="stat equal">
+            <span class="stat-value" id="countEqual">0</span>
+            <div class="stat-label">Equal to agreed rate</div>
+          </div>
+          <div class="stat above">
+            <span class="stat-value" id="countAbove">0</span>
+            <div class="stat-label">Above agreed rate</div>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="countTotal">0</span>
+            <div class="stat-label">Total SKUs</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="downloadKeepBtn" class="secondary">Download file (keep &le; rate)</button>
+          <button id="downloadRemoveBtn" class="secondary">Download file (remove &gt; rate)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h1>SKU Details</h1>
+        <div class="scroll-box">
+          <table>
+            <thead id="resultHead"></thead>
+            <tbody id="resultBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let rows = [];
+    let headers = [];
+    let skuKey = '';
+    let priceKey = '';
+    let campaignKey = '';
+    let productNameKey = '';
+    let lazadaSkuKey = '';
+
+    let baRows = [];
+    let baHeaders = [];
+    let baSkuIdKey = '';
+    let baSellerSkuKey = '';
+    let baAddToCartUsersKey = '';
+    let baUnitsSoldKey = '';
+    let baRevenueKey = '';
+    let baMap = {};
+
+    let calculatedRows = [];
+    let hasBaData = false;
+    let sortCol = null;
+    let sortDir = null; // 'asc' or 'desc'
+
+    const baseColumns = [
+      { key: 'sku', label: 'Lazada SKU', type: 'text' },
+      { key: 'productName', label: 'Product Name', type: 'text' },
+      { key: 'original', label: 'Sales Price', type: 'number' },
+      { key: 'campaign', label: 'Campaign Price', type: 'number' },
+      { key: 'roundedDiscount', label: 'Discount %', type: 'number' },
+      { key: 'statusText', label: 'Status', type: 'text' }
+    ];
+    const baColumns = [
+      { key: 'addToCartUsers', label: 'Add to Cart Users', type: 'number' },
+      { key: 'unitsSold', label: 'Units Sold', type: 'number' },
+      { key: 'revenue', label: 'Revenue', type: 'number' }
+    ];
+
+    const fileInput = document.getElementById('fileInput');
+    const baFileInput = document.getElementById('baFileInput');
+    const baToggle = document.getElementById('baToggle');
+    const baDropdown = document.getElementById('baDropdown');
+    const agreedRateInput = document.getElementById('agreedRate');
+    const checkBtn = document.getElementById('checkBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const detectedMsg = document.getElementById('detectedMsg');
+    const baDetectedMsg = document.getElementById('baDetectedMsg');
+    const results = document.getElementById('results');
+    const findCard = document.getElementById('findCard');
+    const findToggle = document.getElementById('findToggle');
+    const findDropdown = document.getElementById('findDropdown');
+    const searchName = document.getElementById('searchName');
+    const searchSku = document.getElementById('searchSku');
+    const findBtn = document.getElementById('findBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const resultHead = document.getElementById('resultHead');
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.remove('hidden');
+    }
+    function hideError() { errorMsg.classList.add('hidden'); }
+
+    function findColumn(patterns, sourceHeaders) {
+      const lowerHeaders = (sourceHeaders || headers).map(h => String(h).toLowerCase().trim());
+      for (let i = 0; i < patterns.length; i++) {
+        const idx = lowerHeaders.indexOf(patterns[i].toLowerCase());
+        if (idx >= 0) return (sourceHeaders || headers)[idx];
+      }
+      for (let i = 0; i < patterns.length; i++) {
+        const idx = lowerHeaders.findIndex(h => h.includes(patterns[i].toLowerCase()));
+        if (idx >= 0) return (sourceHeaders || headers)[idx];
+      }
+      return '';
+    }
+
+    function findHeaderRow(json, patterns) {
+      for (let i = 0; i < json.length; i++) {
+        const row = json[i].map(h => String(h).toLowerCase().trim());
+        if (patterns.every(p => row.some(h => h.includes(p.toLowerCase())))) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function readFile(file, callback) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+          callback(null, json);
+        } catch (err) {
+          callback('Could not read the file. Please make sure it is a valid Excel or CSV file.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      hideError();
+      detectedMsg.classList.add('hidden');
+      results.classList.add('hidden');
+      findCard.classList.add('hidden');
+
+      readFile(file, function(err, json) {
+        if (err) { showError(err); return; }
+
+        if (json.length < 2) {
+          showError('The campaign file appears to be empty or has no data rows.');
+          return;
+        }
+
+        headers = json[0].map(String);
+        rows = json.slice(1).map(r => {
+          const obj = {};
+          headers.forEach((h, i) => obj[h] = r[i]);
+          return obj;
+        });
+
+        skuKey = findColumn(['Shop Sku', 'SKU', 'Item Sku', 'Sku Id', 'Product ID']);
+        priceKey = findColumn(['Sales Price']);
+        campaignKey = findColumn(['Campaign Price (Mandatory)', 'Campaign Price']);
+        productNameKey = findColumn(['Product Name', 'Name', 'Title', 'Product Title']);
+        lazadaSkuKey = findColumn(['Lazada SKU', 'Lazada Sku', 'LazadaSku', 'Item ID']);
+
+        const missing = [];
+        if (!skuKey) missing.push('Shop Sku');
+        if (!priceKey) missing.push('Sales Price');
+        if (!campaignKey) missing.push('Campaign Price (Mandatory)');
+
+        if (missing.length === 0) {
+          let html = `
+            <strong>Detected campaign columns:</strong><br>
+            Lazada SKU = <strong>${skuKey}</strong>,
+            Sales Price = <strong>${priceKey}</strong>,
+            Campaign Price = <strong>${campaignKey}</strong>
+          `;
+          if (productNameKey) html += `<br>Product Name = <strong>${productNameKey}</strong>`;
+          if (lazadaSkuKey) html += `<br>Lazada SKU = <strong>${lazadaSkuKey}</strong>`;
+          detectedMsg.innerHTML = html;
+          detectedMsg.classList.remove('hidden');
+        } else {
+          showError(`Could not find these required columns: ${missing.join(', ')}. Columns found: ${headers.join(', ')}`);
+        }
+      });
+    });
+
+    baFileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      hideError();
+      baDetectedMsg.classList.add('hidden');
+      results.classList.add('hidden');
+      findCard.classList.add('hidden');
+
+      readFile(file, function(err, json) {
+        if (err) { showError(err); return; }
+
+        const headerIdx = findHeaderRow(json, ['Product ID', 'SKU ID', 'Seller SKU']);
+        if (headerIdx < 0) {
+          showError('Could not find the header row in the Business Advisor file. Expected columns: Product ID, SKU ID, Seller SKU.');
+          return;
+        }
+
+        baHeaders = json[headerIdx].map(String);
+        baRows = json.slice(headerIdx + 1).map(r => {
+          const obj = {};
+          baHeaders.forEach((h, i) => obj[h] = r[i]);
+          return obj;
+        });
+
+        baSkuIdKey = findColumn(['SKU ID', 'Sku Id', 'SKU'], baHeaders);
+        baSellerSkuKey = findColumn(['Seller SKU', 'Seller Sku'], baHeaders);
+        baAddToCartUsersKey = findColumn(['Add to Cart Users', 'Add To Cart Users', 'Add to cart users'], baHeaders);
+        baUnitsSoldKey = findColumn(['Units Sold', 'Unit Sold', 'units sold', 'unit sold'], baHeaders);
+        baRevenueKey = findColumn(['Revenue', 'revenue'], baHeaders);
+
+        const missing = [];
+        if (!baSkuIdKey && !baSellerSkuKey) missing.push('SKU ID / Seller SKU');
+        if (!baAddToCartUsersKey) missing.push('Add to Cart Users');
+        if (!baUnitsSoldKey) missing.push('Units Sold');
+        if (!baRevenueKey) missing.push('Revenue');
+
+        if (missing.length === 0) {
+          buildBaMap();
+          let html = `<strong>Detected Business Advisor columns:</strong><br>`;
+          if (baSkuIdKey) html += `SKU ID = <strong>${baSkuIdKey}</strong>, `;
+          if (baSellerSkuKey) html += `Seller SKU = <strong>${baSellerSkuKey}</strong>, `;
+          html += `Add to Cart Users = <strong>${baAddToCartUsersKey}</strong>, `;
+          html += `Units Sold = <strong>${baUnitsSoldKey}</strong>, `;
+          html += `Revenue = <strong>${baRevenueKey}</strong>`;
+          baDetectedMsg.innerHTML = html;
+          baDetectedMsg.classList.remove('hidden');
+        } else {
+          showError(`Could not find these Business Advisor columns: ${missing.join(', ')}. Columns found: ${baHeaders.join(', ')}`);
+        }
+      });
+    });
+
+    function buildBaMap() {
+      baMap = {};
+      baRows.forEach(row => {
+        const skuId = baSkuIdKey ? String(row[baSkuIdKey] || '').trim() : '';
+        const sellerSku = baSellerSkuKey ? String(row[baSellerSkuKey] || '').trim() : '';
+        if (skuId && skuId !== '-') baMap[skuId] = row;
+        if (sellerSku && sellerSku !== '-') baMap[sellerSku] = row;
+      });
+    }
+
+    function parseNumber(val) {
+      if (val === '' || val === null || val === undefined) return NaN;
+      const n = Number(String(val).replace(/[^0-9.\-]/g, ''));
+      return isNaN(n) ? NaN : n;
+    }
+
+    function roundOneDecimal(num) {
+      return Math.round(num * 10) / 10;
+    }
+
+    function lookupBaMetrics(sku) {
+      const key = String(sku || '').trim();
+      if (!key) return { addToCartUsers: NaN, unitsSold: NaN, revenue: NaN };
+
+      let row = baMap[key];
+      if (!row) {
+        // fallback: partial match for long Lazada SKUs that embed the BA SKU ID
+        const baKeys = Object.keys(baMap);
+        for (let i = 0; i < baKeys.length; i++) {
+          if (key.includes(baKeys[i]) || baKeys[i].includes(key)) {
+            row = baMap[baKeys[i]];
+            break;
+          }
+        }
+      }
+
+      if (!row) return { addToCartUsers: NaN, unitsSold: NaN, revenue: NaN };
+      return {
+        addToCartUsers: parseNumber(row[baAddToCartUsersKey]),
+        unitsSold: parseNumber(row[baUnitsSoldKey]),
+        revenue: parseNumber(row[baRevenueKey])
+      };
+    }
+
+    function calculateRows(agreedRate) {
+      calculatedRows = rows.map(row => {
+        const sku = row[skuKey];
+        const lazadaSku = lazadaSkuKey ? row[lazadaSkuKey] : '';
+        const productName = productNameKey ? row[productNameKey] : '';
+        const original = parseNumber(row[priceKey]);
+        const campaign = parseNumber(row[campaignKey]);
+
+        let discount = 0;
+        let status = 'equal';
+        let statusText = 'Equal';
+
+        if (!isNaN(original) && !isNaN(campaign) && original > 0) {
+          discount = ((original - campaign) / original) * 100;
+        }
+
+        const roundedDiscount = roundOneDecimal(discount);
+        const roundedAgreed = roundOneDecimal(agreedRate);
+
+        if (roundedDiscount < roundedAgreed) {
+          status = 'below';
+          statusText = 'Below';
+        } else if (roundedDiscount > roundedAgreed) {
+          status = 'above';
+          statusText = 'Above';
+        }
+
+        const lookupKey = sku || lazadaSku;
+        const ba = lookupBaMetrics(lookupKey);
+
+        return {
+          sku, lazadaSku, productName, original, campaign,
+          roundedDiscount, status, statusText, raw: row,
+          addToCartUsers: ba.addToCartUsers,
+          unitsSold: ba.unitsSold,
+          revenue: ba.revenue
+        };
+      }).filter(item => {
+        const hasIdentifier = String(item.sku || '').trim() || String(item.lazadaSku || '').trim() || String(item.productName || '').trim();
+        const hasPrice = !isNaN(item.original) || !isNaN(item.campaign);
+        return hasIdentifier || hasPrice;
+      });
+    }
+
+    function formatNum(n, decimals) {
+      if (n === '' || n === null || n === undefined || isNaN(n)) return '-';
+      return n.toFixed(decimals);
+    }
+
+    function getColumns() {
+      return hasBaData ? baseColumns.concat(baColumns) : baseColumns;
+    }
+
+    function renderHeader() {
+      const cols = getColumns();
+      const headerRow = document.createElement('tr');
+
+      cols.forEach(col => {
+        const th = document.createElement('th');
+        th.className = 'sortable';
+        if (col.type === 'number') th.classList.add('num');
+        if (sortCol === col.key) th.classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+
+        const label = document.createElement('span');
+        label.textContent = col.label;
+        th.appendChild(label);
+
+        const indicator = document.createElement('span');
+        indicator.className = 'sort-indicator';
+        indicator.textContent = sortCol === col.key ? (sortDir === 'asc' ? '▲' : '▼') : '⇅';
+        th.appendChild(indicator);
+
+        th.addEventListener('click', () => sortBy(col.key));
+        headerRow.appendChild(th);
+      });
+
+      resultHead.innerHTML = '';
+      resultHead.appendChild(headerRow);
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('resultBody');
+      tbody.innerHTML = '';
+      const cols = getColumns();
+
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        cols.forEach(col => {
+          const td = document.createElement('td');
+          if (col.key === 'productName') td.className = 'product-name';
+          else if (col.type === 'number') td.className = 'num';
+
+          if (col.key === 'statusText') {
+            td.innerHTML = `<span class="badge ${item.status}">${item.statusText}</span>`;
+          } else if (col.key === 'roundedDiscount') {
+            td.textContent = item.roundedDiscount.toFixed(1) + '%';
+          } else if (col.type === 'number') {
+            td.textContent = formatNum(item[col.key], col.key === 'revenue' ? 2 : 0);
+          } else {
+            td.textContent = item[col.key] !== undefined ? item[col.key] : '';
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateStats(data) {
+      let below = 0, equal = 0, above = 0;
+      data.forEach(item => {
+        if (item.status === 'below') below++;
+        else if (item.status === 'above') above++;
+        else equal++;
+      });
+      document.getElementById('countBelow').textContent = below;
+      document.getElementById('countEqual').textContent = equal;
+      document.getElementById('countAbove').textContent = above;
+      document.getElementById('countTotal').textContent = data.length;
+    }
+
+    function sortBy(colKey) {
+      if (sortCol === colKey) {
+        sortDir = sortDir === 'asc' ? 'desc' : (sortDir === 'desc' ? null : 'asc');
+        if (!sortDir) sortCol = null;
+      } else {
+        sortCol = colKey;
+        sortDir = 'desc'; // default to max-to-min for numbers
+      }
+      renderHeader();
+      renderSortedTable();
+    }
+
+    function compareValues(a, b, type) {
+      if (type === 'number') {
+        const na = isNaN(a) ? -Infinity : Number(a);
+        const nb = isNaN(b) ? -Infinity : Number(b);
+        return na - nb;
+      }
+      const sa = String(a !== undefined ? a : '').toLowerCase();
+      const sb = String(b !== undefined ? b : '').toLowerCase();
+      return sa < sb ? -1 : (sa > sb ? 1 : 0);
+    }
+
+    function renderSortedTable() {
+      let data = calculatedRows.slice();
+
+      if (sortCol && sortDir) {
+        const col = getColumns().find(c => c.key === sortCol);
+        const type = col ? col.type : 'text';
+        data.sort((a, b) => {
+          const cmp = compareValues(a[sortCol], b[sortCol], type);
+          return sortDir === 'asc' ? cmp : -cmp;
+        });
+      }
+
+      renderTable(data);
+      updateStats(data);
+    }
+
+    function populateSearchDropdowns() {
+      const names = [...new Set(calculatedRows.map(r => String(r.productName || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+      const skus = [...new Set(calculatedRows.map(r => String(r.lazadaSku || r.sku || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+      searchName.innerHTML = '<option value="">All product names</option>';
+      names.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        searchName.appendChild(option);
+      });
+
+      searchSku.innerHTML = '<option value="">All SKUs</option>';
+      skus.forEach(sku => {
+        const option = document.createElement('option');
+        option.value = sku;
+        option.textContent = sku;
+        searchSku.appendChild(option);
+      });
+    }
+
+    function checkSKUs() {
+      hideError();
+      const agreedRate = parseNumber(agreedRateInput.value);
+
+      if (!skuKey || !priceKey || !campaignKey) {
+        showError('Required campaign columns were not detected. Please check your campaign file has Shop Sku, Sales Price, and Campaign Price (Mandatory) columns.');
+        return;
+      }
+      if (isNaN(agreedRate)) {
+        showError('Please enter a valid agreed discount rate.');
+        return;
+      }
+
+      calculateRows(agreedRate);
+      hasBaData = calculatedRows.some(item =>
+        !isNaN(item.addToCartUsers) ||
+        !isNaN(item.unitsSold) ||
+        !isNaN(item.revenue)
+      );
+
+      sortCol = null;
+      sortDir = null;
+      resultHead.innerHTML = '';
+
+      renderHeader();
+      renderTable(calculatedRows);
+      updateStats(calculatedRows);
+
+      results.classList.remove('hidden');
+      findCard.classList.remove('hidden');
+      populateSearchDropdowns();
+
+      window.__lastResults = { agreedRate };
+    }
+
+    function findSKUs() {
+      const nameQuery = searchName.value.trim().toLowerCase();
+      const skuQuery = searchSku.value.trim().toLowerCase();
+
+      const filtered = calculatedRows.filter(item => {
+        const nameMatch = !nameQuery ||
+          (item.productName && String(item.productName).toLowerCase().includes(nameQuery)) ||
+          (item.sku && String(item.sku).toLowerCase().includes(nameQuery));
+        const skuMatch = !skuQuery ||
+          (item.lazadaSku && String(item.lazadaSku).toLowerCase().includes(skuQuery)) ||
+          (item.sku && String(item.sku).toLowerCase().includes(skuQuery));
+        return nameMatch && skuMatch;
+      });
+
+      renderTable(filtered);
+      updateStats(filtered);
+    }
+
+    function clearSearch() {
+      searchName.selectedIndex = 0;
+      searchSku.selectedIndex = 0;
+      renderSortedTable();
+    }
+
+    function downloadFile(mode) {
+      if (!window.__lastResults) return;
+      const { agreedRate } = window.__lastResults;
+
+      const filtered = calculatedRows.filter(item => {
+        if (mode === 'keep') return item.roundedDiscount <= roundOneDecimal(agreedRate);
+        return item.roundedDiscount > roundOneDecimal(agreedRate);
+      }).map(item => {
+        const output = Object.assign({}, item.raw);
+        output['Discount %'] = item.roundedDiscount.toFixed(1);
+        output['Status'] = item.statusText;
+        if (hasBaData) {
+          output['Add to Cart Users'] = isNaN(item.addToCartUsers) ? '' : item.addToCartUsers;
+          output['Units Sold'] = isNaN(item.unitsSold) ? '' : item.unitsSold;
+          output['Revenue'] = isNaN(item.revenue) ? '' : item.revenue;
+        }
+        return output;
+      });
+
+      const ws = XLSX.utils.json_to_sheet(filtered);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Campaign Products');
+      const filename = mode === 'keep' ? 'Campaign_Keep_At_Or_Below_Rate.xlsx' : 'Campaign_Remove_Above_Rate.xlsx';
+      XLSX.writeFile(wb, filename);
+    }
+
+    checkBtn.addEventListener('click', checkSKUs);
+    findBtn.addEventListener('click', findSKUs);
+    clearBtn.addEventListener('click', clearSearch);
+    document.getElementById('downloadKeepBtn').addEventListener('click', () => downloadFile('keep'));
+    document.getElementById('downloadRemoveBtn').addEventListener('click', () => downloadFile('remove'));
+
+    baToggle.addEventListener('click', () => {
+      baDropdown.classList.toggle('open');
+      baToggle.classList.toggle('open');
+    });
+
+    findToggle.addEventListener('click', () => {
+      findDropdown.classList.toggle('open');
+      findToggle.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
