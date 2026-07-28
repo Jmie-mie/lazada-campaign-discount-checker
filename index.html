@@ -296,14 +296,6 @@
       <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
       <p class="hint">Accepted: Excel (.xlsx, .xls) or CSV. The file should include Shop Sku, Sales Price, and Campaign Price (Mandatory) columns.</p>
 
-      <h2 class="section-title dropdown-toggle" id="baToggle">Check product performance</h2>
-      <p class="hint">Optional. Upload to show Add to Cart Users, Units Sold, and Revenue by SKU.</p>
-      <div class="dropdown-content" id="baDropdown">
-        <label for="baFileInput">Upload business advisor product performance file</label>
-        <input type="file" id="baFileInput" accept=".xlsx,.xls,.csv">
-        <p class="hint">The discount check works without this file.</p>
-      </div>
-
       <div id="detectedMsg" class="detected-info hidden"></div>
       <div id="baDetectedMsg" class="detected-info ba hidden"></div>
 
@@ -313,6 +305,14 @@
         <span class="suffix">%</span>
       </div>
       <p class="hint">Discount is calculated as (Sales Price &minus; Campaign Price) &divide; Sales Price &times; 100.</p>
+
+      <h2 class="section-title dropdown-toggle" id="baToggle">Check product performance (Optional)</h2>
+      <p class="hint">Upload to show Add to Cart Users, Units Sold, and Revenue by SKU.</p>
+      <div class="dropdown-content" id="baDropdown">
+        <label for="baFileInput">Upload business advisor product performance file</label>
+        <input type="file" id="baFileInput" accept=".xlsx,.xls,.csv">
+        <p class="hint">The discount check works without this file.</p>
+      </div>
 
       <button id="checkBtn">Check SKUs</button>
       <div id="errorMsg" class="error hidden"></div>
