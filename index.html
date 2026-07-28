@@ -76,7 +76,6 @@
       padding-right: 36px;
     }
     input[type="number"], input[type="text"] { font-weight: 500; }
-    input[type="color"] { padding: 2px; height: 44px; cursor: pointer; }
     .emoji {
       display: inline-block;
       animation: shake 0.6s ease-in-out infinite;
@@ -303,14 +302,14 @@
     </div>
 
     <div class="card">
-      <label for="fileInput" class="section-label" id="label1"><span class="emoji" id="emoji1Span">📂</span> Upload campaign file</label>
+      <label for="fileInput" class="section-label"><span class="emoji" id="emoji1Span">📂</span> Upload campaign file</label>
       <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
       <p class="hint">Accepted: Excel (.xlsx, .xls) or CSV. The file should include Shop Sku, Sales Price, and Campaign Price (Mandatory) columns.</p>
 
       <div id="detectedMsg" class="detected-info hidden"></div>
       <div id="baDetectedMsg" class="detected-info ba hidden"></div>
 
-      <label for="agreedRate" class="section-label" id="label2"><span class="emoji" id="emoji2Span">🏷️</span> Seller agreed discount rate</label>
+      <label for="agreedRate" class="section-label"><span class="emoji" id="emoji2Span">🏷️</span> Seller agreed discount rate</label>
       <div class="suffix-wrap">
         <input type="number" id="agreedRate" min="0" max="100" step="0.1" placeholder="e.g. 2 or 2.5">
         <span class="suffix">%</span>
@@ -323,30 +322,6 @@
         <label for="baFileInput">Upload business advisor product performance file</label>
         <input type="file" id="baFileInput" accept=".xlsx,.xls,.csv">
         <p class="hint">The discount check works without this file.</p>
-      </div>
-
-      <h2 class="section-title dropdown-toggle" id="customToggle">Customize appearance</h2>
-      <div class="dropdown-content" id="customDropdown">
-        <div class="search-row">
-          <div>
-            <label for="emoji1">Step 1 emoji</label>
-            <input type="text" id="emoji1" value="📂" maxlength="10">
-          </div>
-          <div>
-            <label for="emoji2">Step 2 emoji</label>
-            <input type="text" id="emoji2" value="🏷️" maxlength="10">
-          </div>
-        </div>
-        <div class="search-row">
-          <div>
-            <label for="color1">Step 1 label colour</label>
-            <input type="color" id="color1" value="#dbeafe">
-          </div>
-          <div>
-            <label for="color2">Step 2 label colour</label>
-            <input type="color" id="color2" value="#dbeafe">
-          </div>
-        </div>
       </div>
 
       <button id="checkBtn">Check SKUs</button>
@@ -475,17 +450,6 @@
     const findBtn = document.getElementById('findBtn');
     const clearBtn = document.getElementById('clearBtn');
     const resultHead = document.getElementById('resultHead');
-
-    const customToggle = document.getElementById('customToggle');
-    const customDropdown = document.getElementById('customDropdown');
-    const emoji1Input = document.getElementById('emoji1');
-    const emoji2Input = document.getElementById('emoji2');
-    const color1Input = document.getElementById('color1');
-    const color2Input = document.getElementById('color2');
-    const emoji1Span = document.getElementById('emoji1Span');
-    const emoji2Span = document.getElementById('emoji2Span');
-    const label1 = document.getElementById('label1');
-    const label2 = document.getElementById('label2');
 
     function showError(msg) {
       errorMsg.textContent = msg;
@@ -988,25 +952,6 @@
       findToggle.classList.toggle('open');
     });
 
-    customToggle.addEventListener('click', () => {
-      customDropdown.classList.toggle('open');
-      customToggle.classList.toggle('open');
-    });
-
-    function applyCustomization() {
-      const e1 = emoji1Input.value.trim() || '📂';
-      const e2 = emoji2Input.value.trim() || '🏷️';
-      emoji1Span.textContent = e1;
-      emoji2Span.textContent = e2;
-      label1.style.background = color1Input.value;
-      label2.style.background = color2Input.value;
-    }
-
-    emoji1Input.addEventListener('input', applyCustomization);
-    emoji2Input.addEventListener('input', applyCustomization);
-    color1Input.addEventListener('input', applyCustomization);
-    color2Input.addEventListener('input', applyCustomization);
-    applyCustomization();
   </script>
 </body>
 </html>
