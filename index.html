@@ -837,6 +837,8 @@
       findCard.classList.remove('hidden');
       populateSearchDropdowns();
 
+      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
       window.__lastResults = { agreedRate };
     }
 
