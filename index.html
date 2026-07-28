@@ -877,17 +877,7 @@
       const filtered = calculatedRows.filter(item => {
         if (mode === 'keep') return item.roundedDiscount <= roundOneDecimal(agreedRate);
         return item.roundedDiscount > roundOneDecimal(agreedRate);
-      }).map(item => {
-        const output = Object.assign({}, item.raw);
-        output['Discount %'] = item.roundedDiscount.toFixed(1);
-        output['Status'] = item.statusText;
-        if (hasBaData) {
-          output['Add to Cart Users'] = isNaN(item.addToCartUsers) ? '' : item.addToCartUsers;
-          output['Units Sold'] = isNaN(item.unitsSold) ? '' : item.unitsSold;
-          output['Revenue'] = isNaN(item.revenue) ? '' : item.revenue;
-        }
-        return output;
-      });
+      }).map(item => item.raw);
 
       const ws = XLSX.utils.json_to_sheet(filtered);
       const wb = XLSX.utils.book_new();
