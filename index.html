@@ -324,18 +324,16 @@
         <div class="search-row">
           <div>
             <label for="searchName">Product Name</label>
-            <select id="searchName">
-              <option value="">All product names</option>
-            </select>
+            <input type="text" id="searchName" list="nameList" placeholder="Type or select product name">
+            <datalist id="nameList"></datalist>
           </div>
           <div>
             <label for="searchSku">Lazada SKU</label>
-            <select id="searchSku">
-              <option value="">All SKUs</option>
-            </select>
+            <input type="text" id="searchSku" list="skuList" placeholder="Type or select SKU">
+            <datalist id="skuList"></datalist>
           </div>
         </div>
-        <p class="search-hint">Select a value from each dropdown, then click Find. Leave as 'All' to ignore that filter.</p>
+        <p class="search-hint">Type or select a value in each box, then click Find. Leave empty to ignore that filter.</p>
         <div class="actions">
           <button id="findBtn" class="secondary">Find</button>
           <button id="clearBtn" class="secondary">Show all</button>
@@ -437,6 +435,8 @@
     const findDropdown = document.getElementById('findDropdown');
     const searchName = document.getElementById('searchName');
     const searchSku = document.getElementById('searchSku');
+    const nameList = document.getElementById('nameList');
+    const skuList = document.getElementById('skuList');
     const findBtn = document.getElementById('findBtn');
     const clearBtn = document.getElementById('clearBtn');
     const resultHead = document.getElementById('resultHead');
@@ -800,20 +800,18 @@
       const names = [...new Set(calculatedRows.map(r => String(r.productName || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
       const skus = [...new Set(calculatedRows.map(r => String(r.lazadaSku || r.sku || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
-      searchName.innerHTML = '<option value="">All product names</option>';
+      nameList.innerHTML = '';
       names.forEach(name => {
         const option = document.createElement('option');
         option.value = name;
-        option.textContent = name;
-        searchName.appendChild(option);
+        nameList.appendChild(option);
       });
 
-      searchSku.innerHTML = '<option value="">All SKUs</option>';
+      skuList.innerHTML = '';
       skus.forEach(sku => {
         const option = document.createElement('option');
         option.value = sku;
-        option.textContent = sku;
-        searchSku.appendChild(option);
+        skuList.appendChild(option);
       });
     }
 
@@ -871,8 +869,8 @@
     }
 
     function clearSearch() {
-      searchName.selectedIndex = 0;
-      searchSku.selectedIndex = 0;
+      searchName.value = '';
+      searchSku.value = '';
       renderSortedTable();
     }
 
