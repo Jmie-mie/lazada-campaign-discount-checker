@@ -244,7 +244,19 @@
       text-decoration: underline;
     }
     .copy-btn:hover { color: #8b6f47; }
-    .copy-col { width: 44px; text-align: center; }
+    .copy-all-btn {
+      background: #8b6f47;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 0;
+      width: auto;
+    }
+    .copy-all-btn:hover { background: #7a5f3a; }
     .detected-info {
       background: #f6fef8;
       border: 1px solid #d1f4d8;
@@ -428,6 +440,7 @@
           </div>
           <div class="page-info" id="pageInfo"></div>
           <div class="page-buttons">
+            <button id="copyAllBtn" type="button" class="copy-all-btn">Copy all</button>
             <button id="prevPage" type="button">Previous</button>
             <button id="nextPage" type="button">Next</button>
           </div>
@@ -509,6 +522,7 @@
     const pageInfo = document.getElementById('pageInfo');
     const prevPageBtn = document.getElementById('prevPage');
     const nextPageBtn = document.getElementById('nextPage');
+    const copyAllBtn = document.getElementById('copyAllBtn');
 
     function showError(msg) {
       errorMsg.textContent = msg;
@@ -767,11 +781,6 @@
         headerRow.appendChild(th);
       });
 
-      const copyTh = document.createElement('th');
-      copyTh.className = 'copy-col';
-      copyTh.textContent = 'Copy';
-      headerRow.appendChild(copyTh);
-
       resultHead.innerHTML = '';
       resultHead.appendChild(headerRow);
     }
@@ -811,17 +820,6 @@
           tr.appendChild(td);
         });
 
-        const copyTd = document.createElement('td');
-        copyTd.className = 'copy-col';
-        const copyBtn = document.createElement('button');
-        copyBtn.type = 'button';
-        copyBtn.className = 'copy-btn';
-        copyBtn.title = 'Copy SKU details';
-        copyBtn.textContent = 'Copy';
-        copyBtn.addEventListener('click', () => copyRow(item, copyBtn));
-        copyTd.appendChild(copyBtn);
-        tr.appendChild(copyTd);
-
         tbody.appendChild(tr);
       });
 
@@ -845,8 +843,7 @@
       renderTable(currentTableData);
     }
 
-    async function copyRow(item, btn) {
-      const agreedRate = parseNumber(agreedRateInput.value);
+    function formatSkuBlock(item, agreedRate) {
       const lines = [
         `SKU: ${item.sku || item.lazadaSku || ''}`,
         `Product: ${item.productName || ''}`,
@@ -861,7 +858,14 @@
                    `Units Sold: ${!isNaN(item.unitsSold) ? formatNum(item.unitsSold, 0) : '-'}`,
                    `Revenue: ${!isNaN(item.revenue) ? formatNum(item.revenue, 2) : '-'}`);
       }
-      const text = lines.join('\n');
+      return lines.join('\n');
+    }
+
+    async function copyAllRows() {
+      if (!currentTableData || currentTableData.length === 0) return;
+      const agreedRate = parseNumber(agreedRateInput.value);
+      const blocks = currentTableData.map(item => formatSkuBlock(item, agreedRate));
+      const text = blocks.join('\n\n---\n\n');
 
       try {
         if (navigator.clipboard && window.isSecureContext) {
@@ -876,10 +880,9 @@
           document.execCommand('copy');
           document.body.removeChild(ta);
         }
-        const original = btn.textContent;
-        btn.textContent = '\u2713';
-        btn.style.color = '#16a34a';
-        setTimeout(() => { btn.textContent = original; btn.style.color = ''; }, 1500);
+        const original = copyAllBtn.textContent;
+        copyAllBtn.textContent = 'Copied!';
+        setTimeout(() => { copyAllBtn.textContent = original; }, 1500);
       } catch (err) {
         showError('Unable to copy. Please copy manually.');
       }
@@ -1096,6 +1099,7 @@
     });
     document.getElementById('downloadKeepBtn').addEventListener('click', () => downloadFile('keep'));
     document.getElementById('downloadRemoveBtn').addEventListener('click', () => downloadFile('remove'));
+    copyAllBtn.addEventListener('click', copyAllRows);
 
     baToggle.addEventListener('click', () => {
       baDropdown.classList.toggle('open');
