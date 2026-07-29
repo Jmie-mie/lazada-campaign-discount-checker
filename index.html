@@ -257,6 +257,33 @@
       width: auto;
     }
     .copy-all-btn:hover { background: #7a5f3a; }
+    .warning-card {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: #9a3412;
+    }
+    .warning-icon {
+      width: 32px;
+      height: 32px;
+      background: #ffedd5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .warning-text strong {
+      color: #c2410c;
+      display: block;
+      margin-bottom: 2px;
+    }
     .detected-info {
       background: #f6fef8;
       border: 1px solid #d1f4d8;
@@ -345,6 +372,14 @@
     <div class="card">
       <h1>Lazada Campaign Discount Checker</h1>
       <p class="subtitle">Upload file, enter the seller's agreed discount rate, and see which SKUs meet the target.</p>
+    </div>
+
+    <div class="card warning-card">
+      <div class="warning-icon">&#9888;</div>
+      <div class="warning-text">
+        <strong>Heads up!</strong>
+        Please double-check your prices before submitting to avoid any discrepancies on price.
+      </div>
     </div>
 
     <div class="card">
